@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Mono&family=Inter:wght@200;300;400;500;600;700;800;900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: Inter;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-box-sizing: border-box !important; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box !important; /* Firefox, other Gecko */
+    box-sizing: border-box !important; /* Opera/IE 8+ */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
