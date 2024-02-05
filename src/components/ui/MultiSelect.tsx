@@ -9,7 +9,7 @@ import {
 } from "react";
 import debounce from "lodash.debounce";
 import { ChevronDown, XSquare } from "lucide-react";
-import { SelectOption } from "../../types/select";
+import { SelectOption, SelectedOption } from "../../types/select";
 
 const MultiSelect: FunctionComponent<{
   loading: boolean;
@@ -28,36 +28,34 @@ const MultiSelect: FunctionComponent<{
 
   const [displayOptionList, setDisplayOptionList] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedItemList, setselectedItemList] = useState<string[]>([]);
+  const [selectedItemList, setselectedItemList] = useState<SelectedOption[]>(
+    []
+  );
 
   const handleSearchTermChange = () => {
     setSearchTerm(searchTermRef?.current?.value);
   };
 
-  const updateSelectedList = (id: string) => {
-    if (id)
-      selectedItemList?.includes(id)
-        ? setselectedItemList((prev) => prev.filter((item: any) => item != id))
-        : setselectedItemList((prev) => [...prev, id]);
+  const updateSelectedList = (id: string, title: string) => {
+    if (id) {
+      selectedItemList?.findIndex((item) => item?.id == id) > -1
+        ? setselectedItemList((prev) =>
+            prev.filter((item: any) => item?.id != id)
+          )
+        : setselectedItemList((prev) => [...prev, { id, title }]);
+    }
   };
 
   const handleSelectListItem = useCallback(
-    (id: string) => () => {
-      updateSelectedList(id);
+    (id: string, title: string) => () => {
+      updateSelectedList(id, title);
     },
-    [selectedItemList]
+    [selectedItemList, selectOptionList]
   );
 
   const debounceResults = useMemo(() => {
     return debounce(handleSearchTermChange, 300);
   }, []);
-
-  const getSelectedTitle = useCallback(
-    (id: string) => {
-      return selectOptionList?.find((item) => item.id == id)?.title || "";
-    },
-    [selectOptionList]
-  );
 
   const getMentionedTitle = useCallback(
     (name: string) => {
@@ -110,9 +108,11 @@ const MultiSelect: FunctionComponent<{
           if (e?.key == "ArrowLeft") {
             target?.previousElementSibling?.lastChild?.focus();
           } else if (e?.key == "Backspace") {
-            const selectedElementName =
+            const selectedElementId =
               target?.previousElementSibling?.id?.split("-")[1];
-            updateSelectedList(selectedElementName);
+            const selectedElementName =
+              target?.previousElementSibling?.id?.split("-")[2];
+            updateSelectedList(selectedElementId, selectedElementName);
           }
         }
       } else if (target?.name == "checkbox") {
@@ -125,13 +125,17 @@ const MultiSelect: FunctionComponent<{
             document?.getElementById("search")?.focus();
           }
         } else if (e?.key == "Enter") {
-          updateSelectedList(target?.id);
+          const selectedElementId = target?.id?.split("-")[0];
+          const selectedElementName = target?.id?.split("-")[1];
+          updateSelectedList(selectedElementId, selectedElementName);
         }
       } else if (document?.activeElement?.id == "select-button") {
         if (e?.key == "Backspace") {
-          const selectedElementName =
+          const selectedElementId =
             target?.previousElementSibling?.id?.split("-")[1];
-          updateSelectedList(selectedElementName);
+          const selectedElementName =
+            target?.previousElementSibling?.id?.split("-")[2];
+          updateSelectedList(selectedElementId, selectedElementName);
         } else if (e?.key == "ArrowLeft") {
           (
             document?.activeElement?.parentNode?.previousSibling
@@ -163,16 +167,19 @@ const MultiSelect: FunctionComponent<{
         >
           {selectedItemList?.map((selectedItem) => (
             <div
-              id={"selected-" + selectedItem}
-              key={selectedItem}
+              id={"selected-" + selectedItem?.id + "-" + selectedItem?.title}
+              key={selectedItem?.id + selectedItem?.title}
               className="bg-slate-100 border-slate-300 flex items-center p-1.5 rounded-xl gap-1"
             >
               <span className="line-clamp-1 whitespace-nowrap">
-                {getSelectedTitle(selectedItem)}
+                {selectedItem?.title}
               </span>
               <button
                 id="select-button"
-                onClick={handleSelectListItem(selectedItem)}
+                onClick={handleSelectListItem(
+                  selectedItem?.id,
+                  selectedItem?.title
+                )}
               >
                 <XSquare
                   size={24}
@@ -217,18 +224,23 @@ const MultiSelect: FunctionComponent<{
         )}
         {selectOptionList?.map((selectOption, index) => (
           <div
-            key={selectOption?.id}
+            key={selectOption?.id + selectOption?.title}
             className={`flex items-center w-full p-3 gap-2 hover:bg-slate-50 ${
               index > 0 ? "border-t border-slate-400" : ""
             }`}
           >
             <input
-              id={selectOption?.id}
+              id={selectOption?.id + "-" + selectOption?.title}
               type="checkbox"
               name="checkbox"
               className="w-4 h-4 focus:outline-slate-400 accent-blue-600"
-              onChange={handleSelectListItem(selectOption?.id)}
-              checked={selectedItemList?.includes(selectOption?.id)}
+              onChange={handleSelectListItem(
+                selectOption?.id,
+                selectOption?.title
+              )}
+              checked={selectedItemList
+                ?.map((item) => item.id)
+                ?.includes(selectOption?.id)}
             />
             <img
               src={selectOption?.image}

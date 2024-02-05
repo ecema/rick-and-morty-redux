@@ -4,3 +4,8 @@ export interface SelectOption {
   title: string;
   detail: string;
 }
+
+export interface SelectedOption {
+  id: string;
+  title: string;
+}
