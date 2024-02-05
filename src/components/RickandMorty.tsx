@@ -20,7 +20,7 @@ const RickandMorty: FunctionComponent = () => {
 
   const selectOptionList: SelectOption[] = useMemo(() => {
     return characterList?.map((character) => ({
-      id: character?.id,
+      id: character?.id?.toString(),
       image: character?.image,
       title: character?.name,
       detail: getEpisodeText(character?.episoceCount),

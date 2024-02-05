@@ -34,18 +34,16 @@ const MultiSelect: FunctionComponent<{
     setSearchTerm(searchTermRef?.current?.value);
   };
 
-  const updateSelectedList = (name: string) => {
-    if (name)
-      selectedItemList?.includes(name)
-        ? setselectedItemList((prev) =>
-            prev.filter((item: any) => item != name)
-          )
-        : setselectedItemList((prev) => [...prev, name]);
+  const updateSelectedList = (id: string) => {
+    if (id)
+      selectedItemList?.includes(id)
+        ? setselectedItemList((prev) => prev.filter((item: any) => item != id))
+        : setselectedItemList((prev) => [...prev, id]);
   };
 
   const handleSelectListItem = useCallback(
-    (name: string) => () => {
-      updateSelectedList(name);
+    (id: string) => () => {
+      updateSelectedList(id);
     },
     [selectedItemList]
   );
@@ -53,6 +51,13 @@ const MultiSelect: FunctionComponent<{
   const debounceResults = useMemo(() => {
     return debounce(handleSearchTermChange, 300);
   }, []);
+
+  const getSelectedTitle = useCallback(
+    (id: string) => {
+      return selectOptionList?.find((item) => item.id == id)?.title || "";
+    },
+    [selectOptionList]
+  );
 
   const getMentionedTitle = useCallback(
     (name: string) => {
@@ -149,6 +154,8 @@ const MultiSelect: FunctionComponent<{
     }
   };
 
+  console.log(selectedItemList);
+
   return (
     <div className="w-full sm:w-120 flex flex-col gap-1">
       <div className="border border-slate-400 p-1 rounded-2xl w-full h-12 flex justify-between items-center gap-2 bg-white">
@@ -163,7 +170,7 @@ const MultiSelect: FunctionComponent<{
               className="bg-slate-100 border-slate-300 flex items-center p-1.5 rounded-xl gap-1"
             >
               <span className="line-clamp-1 whitespace-nowrap">
-                {selectedItem}
+                {getSelectedTitle(selectedItem)}
               </span>
               <button
                 id="select-button"
@@ -182,13 +189,6 @@ const MultiSelect: FunctionComponent<{
             className="outline-none font-medium ml-2 w-full min-w-32"
             placeholder={placeholder}
             autoFocus
-            spellCheck="false"
-            type="text"
-            aria-autocomplete="both"
-            aria-haspopup="false"
-            autoCapitalize="off"
-            autoComplete="off"
-            autoCorrect="off"
             onKeyDown={debounceResults}
           />
         </div>
@@ -225,12 +225,12 @@ const MultiSelect: FunctionComponent<{
             }`}
           >
             <input
-              id={selectOption?.title}
+              id={selectOption?.id}
               type="checkbox"
               name="checkbox"
               className="w-4 h-4 focus:outline-slate-400 accent-blue-600"
-              onChange={handleSelectListItem(selectOption?.title)}
-              checked={selectedItemList?.includes(selectOption?.title)}
+              onChange={handleSelectListItem(selectOption?.id)}
+              checked={selectedItemList?.includes(selectOption?.id)}
             />
             <img
               src={selectOption?.image}
