@@ -154,8 +154,6 @@ const MultiSelect: FunctionComponent<{
     }
   };
 
-  console.log(selectedItemList);
-
   return (
     <div className="w-full sm:w-120 flex flex-col gap-1">
       <div className="border border-slate-400 p-1 rounded-2xl w-full h-12 flex justify-between items-center gap-2 bg-white">
